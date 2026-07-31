@@ -1,0 +1,6 @@
+name: health
+intent: health
+description: Runtime health skill
+slots:
+  required: []
+  optional: []

@@ -1,0 +1,9 @@
+name: echo
+intent: echo
+description: Echo back the text slot
+slots:
+  required:
+    - name: text
+      type: string
+      description: Text to echo
+  optional: []
