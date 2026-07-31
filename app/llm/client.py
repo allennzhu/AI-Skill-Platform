@@ -28,6 +28,7 @@ class HttpLLMClient:
                     ],
                     "temperature": 0,
                 },
+                timeout=self.settings.llm_timeout_seconds,
             )
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]

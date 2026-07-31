@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     llm_base_url: str = "http://127.0.0.1:11434/v1"
     llm_api_key: str = "ollama"
     llm_model: str = "deepseek-r1"
+    llm_timeout_seconds: float = 120
     session_ttl_seconds: int = 3600
 
 def get_settings() -> Settings:

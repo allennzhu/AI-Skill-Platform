@@ -17,7 +17,11 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
-cp .env.example .env   # edit LLM settings if needed
+# Windows
+copy .env.example .env
+# Linux / macOS
+cp .env.example .env
+# Edit LLM settings if needed
 ```
 
 ## Start
@@ -26,7 +30,11 @@ cp .env.example .env   # edit LLM settings if needed
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Or use values from `.env` (defaults shown in `.env.example`).
+Pass `HOST` and `PORT` to the uvicorn CLI as shown above. The corresponding
+`Settings.host` and `Settings.port` values document intended defaults and are
+reserved for future startup integration; uvicorn does not read them from
+`.env` automatically. Other settings, including `LLM_TIMEOUT_SECONDS` (default
+`120`), are loaded from `.env`.
 
 ## API examples
 

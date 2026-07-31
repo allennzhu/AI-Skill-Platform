@@ -64,6 +64,34 @@ def test_executor_wraps_skill_exceptions() -> None:
 
     assert exc_info.value.code == "skill_error"
     assert exc_info.value.status_code == 500
+    assert exc_info.value.details == {}
+
+
+def test_executor_preserves_app_error() -> None:
+    expected = AppError(
+        code="bad_request",
+        message="invalid skill input",
+        details={"field": "text"},
+        status_code=422,
+    )
+
+    class AppErrorSkill:
+        def validate(self, slots: dict) -> None:
+            raise expected
+
+        def normalize(self, slots: dict) -> dict:
+            return slots
+
+        def execute(self, slots: dict) -> dict:
+            return slots
+
+        def build_response(self, result: dict) -> dict:
+            return result
+
+    with pytest.raises(AppError) as exc_info:
+        SkillExecutor().run(AppErrorSkill(), {})
+
+    assert exc_info.value is expected
 
 
 def test_runtime_echo_ok() -> None:
