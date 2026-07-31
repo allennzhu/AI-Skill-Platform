@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import FastAPI
 
 from app.api.errors import register_exception_handlers
+from app.api.v1 import execute as execute_api
 from app.api.v1 import health as health_api
 from app.config import get_settings
 from app.runtime.registry import SkillRegistry
@@ -21,6 +22,7 @@ def create_app() -> FastAPI:
     )
     register_exception_handlers(app)
     app.include_router(health_api.router)
+    app.include_router(execute_api.router)
     return app
 
 app = create_app()
