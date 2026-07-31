@@ -14,6 +14,16 @@ def test_registry_loads_echo_and_health():
     assert set(reg.list_intents()) >= {"echo", "health"}
 
 
+def test_registry_prompt_catalog_lists_intents_and_required_slots():
+    reg = SkillRegistry.load_dir(ROOT)
+
+    catalog = reg.prompt_catalog()
+
+    assert "echo" in catalog
+    assert "text" in catalog
+    assert "health" in catalog
+
+
 def test_router_unknown_intent():
     reg = SkillRegistry.load_dir(ROOT)
     router = Router(reg)

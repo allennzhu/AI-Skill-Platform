@@ -37,3 +37,13 @@ class SkillRegistry:
 
     def list_intents(self) -> list[str]:
         return sorted(self._skills.keys())
+
+    def prompt_catalog(self) -> str:
+        lines = []
+        for intent in self.list_intents():
+            manifest = self._skills[intent].manifest
+            required = ", ".join(manifest.required_slots) or "none"
+            lines.append(
+                f"- {intent}: {manifest.description}; required slots: {required}"
+            )
+        return "\n".join(lines)
