@@ -1,0 +1,9 @@
+name: qa_board_analysis
+intent: qa_board_analysis
+description: Analyze QA board KPI/bug/publish/summary stats into one Chinese paragraph
+slots:
+  required:
+    - name: context
+      type: object
+      description: Board API payload with period, filters, kpi, bug, publish, summary
+  optional: []
