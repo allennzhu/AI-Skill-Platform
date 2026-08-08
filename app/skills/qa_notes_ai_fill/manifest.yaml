@@ -1,0 +1,12 @@
+name: qa_notes_ai_fill
+intent: qa_notes_ai_fill
+description: Generate QA board "summary & key matters" notes (role reviews, bug summary, bug suggestions, focus items, process items) as strict JSON for frontend form backfill
+slots:
+  required:
+    - name: context
+      type: object
+      description: Aggregated QA board data assembled by the API layer — period, filters, kpi, bug, publish, delay_detail, bug_samples, prev_summary, current_summary
+  optional:
+    - name: sections
+      type: array
+      description: Optional subset of sections to generate (role_reviews / bug_summary / bug_suggestions / focus_items / process_items); default all

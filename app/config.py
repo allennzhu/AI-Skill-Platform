@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     llm_model: str = "deepseek-r1"
     llm_timeout_seconds: float = 120
     session_ttl_seconds: int = 3600
-    cors_origins: str = "http://localhost:8080,http://127.0.0.1:8080"
+    cors_origins: str = "http://localhost:7777,http://127.0.0.1:7777,http://localhost:8080,http://127.0.0.1:8080"
 
 def get_settings() -> Settings:
     return Settings()
