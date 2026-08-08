@@ -20,13 +20,15 @@ def create_app(llm_client: LLMClient | None = None) -> FastAPI:
     skills_root = Path(__file__).resolve().parent / "skills"
     app = FastAPI(title="AI Skill Platform")
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
-    app.add_middleware(
-        CORSMiddleware,
+    cors_kwargs: dict = dict(
         allow_origins=origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    if settings.cors_origin_regex:
+        cors_kwargs["allow_origin_regex"] = settings.cors_origin_regex
+    app.add_middleware(CORSMiddleware, **cors_kwargs)
     app.state.settings = settings
     app.state.runtime = RuntimeService(
         registry=SkillRegistry.load_dir(skills_root),

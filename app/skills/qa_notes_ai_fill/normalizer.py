@@ -83,6 +83,11 @@ def normalize(slots: dict[str, Any]) -> dict[str, Any]:
         "publish": _trim_value(raw_ctx.get("publish") or {}),
     }
 
+    # 年度目标契约（前端与 skill 约定的既定口径）：体积小、归因价值高，始终保留
+    annual_targets = raw_ctx.get("annual_targets")
+    if isinstance(annual_targets, dict) and annual_targets:
+        context["annual_targets"] = _trim_value(annual_targets)
+
     delay_detail = raw_ctx.get("delay_detail") or []
     if isinstance(delay_detail, list) and delay_detail:
         context["delay_detail"] = [_slim_delay_row(r) for r in delay_detail[:_MAX_DELAY_ROWS] if isinstance(r, dict)]
@@ -162,6 +167,9 @@ def normalize(slots: dict[str, Any]) -> dict[str, Any]:
             },
             "_truncated": True,
         }
+        # 年度目标契约体积小且是 focus 必填项依据，预算兜底时仍保留
+        if context.get("annual_targets"):
+            truncated["annual_targets"] = context["annual_targets"]
         for key in ("over_tb_detail", "delay_detail", "linshi_detail"):
             if context.get(key):
                 truncated[key] = context[key][:6]

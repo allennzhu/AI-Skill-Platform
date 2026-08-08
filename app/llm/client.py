@@ -6,6 +6,10 @@ import httpx
 from app.api.errors import AppError
 from app.config import Settings
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class LLMClient(Protocol):
     def complete(self, system: str, user: str) -> str: ...
@@ -36,6 +40,11 @@ class HttpLLMClient:
                 raise TypeError("LLM content must be a string")
             return content
         except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
+            logger.error(
+                "LLM request failed: base_url=%s model=%s cause=%s: %s",
+                self.settings.llm_base_url, self.settings.llm_model,
+                type(exc).__name__, exc,
+            )
             raise AppError(
                 code="llm_error",
                 message="LLM request failed",
