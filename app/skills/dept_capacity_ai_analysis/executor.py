@@ -5,8 +5,7 @@ import re
 from typing import Any
 
 from app.api.errors import AppError
-from app.config import get_settings
-from app.llm.client import HttpLLMClient
+from app.llm.credentials import get_request_llm_client
 
 _THINK_RE = re.compile(r"<think>[\s\S]*?</think>", re.IGNORECASE)
 _THINK_UNCLOSED_RE = re.compile(r"<think>[\s\S]*$", re.IGNORECASE)
@@ -260,7 +259,7 @@ def execute(slots: dict[str, Any]) -> dict[str, Any]:
         f"{directive}\n\n{payload}"
     )
 
-    client = HttpLLMClient(get_settings())
+    client = get_request_llm_client()
     try:
         raw = client.complete(SYSTEM_PROMPT, user_prompt)
     except AppError:

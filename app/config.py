@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     llm_api_key: str = "ollama"
     llm_model: str = "deepseek-r1"
     llm_timeout_seconds: float = 120
+    # 瞬时失败（524/502/超时）自动重试次数；免费模型冷启动常见第一次 524、第二次成功
+    llm_retry_times: int = 1
+    llm_retry_backoff_seconds: float = 1.0
     session_ttl_seconds: int = 3600
     cors_origins: str = "http://localhost:7777,http://127.0.0.1:7777,http://localhost:8080,http://127.0.0.1:8080"
     # 本地开发：除显式名单外，再正则放行 localhost 与私有网段（10.x / 192.168.x / 172.16-31.x）任意端口，
