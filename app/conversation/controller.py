@@ -8,7 +8,7 @@ from app.runtime.service import RuntimeService
 
 
 class ConversationController:
-    def __init__(self, runtime: RuntimeService, llm: LLMClient) -> None:
+    def __init__(self, runtime: RuntimeService, llm: LLMClient | None = None) -> None:
         self.runtime = runtime
         self.llm = llm
 
@@ -22,13 +22,7 @@ class ConversationController:
 
         system = build_system_prompt(self.runtime.registry.prompt_catalog())
         try:
-            # Prefer per-request credentials (user key); fall back to injected client for unit tests.
-            try:
-                client = get_request_llm_client()
-            except AppError as exc:
-                if exc.code != "unauthorized":
-                    raise
-                client = self.llm
+            client = self.llm or get_request_llm_client()
             raw = client.complete(system, message)
             parsed = parse_intent_json(raw)
         except AppError as exc:

@@ -13,22 +13,19 @@
 
 ## 一、前端装配 context 规则
 
-### 调用链路（对齐 qa_board_analysis 已上线的前端直连先例）
+### 调用链路
 
 ```
 前端「AI分析」按钮
   → 装配 context（见下表）
-  → executeSkill({ intent: 'qa_notes_ai_fill', slots: { context, sections? } })
-      // boardAnalysisApi.js 既有方法：POST {VUE_APP_AGENT_API}/v1/execute
-  → 拿 result.notes 回填草稿态
+  → POST /manage_api/ai_skill/execute
+      { intent: 'qa_notes_ai_fill', slots: { context, sections? } }
+  → 拿 data.result.notes 回填草稿态
 ```
 
-- 前端复用 `statistic/bug/components/overview/boardAnalysisApi.js` 的 `executeSkill`
-  （qa_board_analysis 已在用：env `VUE_APP_AGENT_API` 直连 Agent 平台，需 CORS 放行页面地址）。
-- 超时 ≥120s；按钮 loading 提示「AI 分析中，约需 1 分钟」；失败 toast 不回填
-  （网络错误提示参考既有实现：「无法连接 AI 服务，请确认 Agent 已启动且 CORS 允许当前页面地址」）。
+- 走 51PM 代理（`requireApi.js`），不要直连 Agent 端口，也不要配 `VUE_APP_AGENT_API`。
+- 超时 ≥120s；按钮 loading 提示「AI 分析中，约需 1 分钟」；失败 toast 不回填。
 - **只生成不落库**：notes 回填草稿态，QA 确认后走既有 add/update/delete_qa_stat_summary_item 保存。
-- 后续若需收权，可在业务后端加薄代理（仅鉴权+转发）替换 env 直连，skill 与前端装配逻辑不变。
 
 ### context 字段与前端取数来源（全部为既有接口，无需后端改动）
 
@@ -65,7 +62,7 @@ period_key 如 '2026-W27' ISO 周——看板既有 API 文档的周期键表漏
 ### 调用 skill
 
 ```jsonc
-POST /v1/execute
+POST /manage_api/ai_skill/execute
 {
   "intent": "qa_notes_ai_fill",
   "slots": {

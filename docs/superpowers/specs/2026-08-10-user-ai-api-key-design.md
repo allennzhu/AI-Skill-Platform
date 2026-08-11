@@ -28,7 +28,8 @@
 
 ```
 前端(+ Authorization: Bearer <oauthToken>)
-  → AI-Skill-Platform POST /v1/execute | /v1/chat
+  → 51PM POST /manage_api/ai_skill/execute | /chat
+  → AI-Skill-Platform POST /v1/execute | /v1/chat（内网，转发同一 Bearer）
   → 51PM POST /internal_api/ai_api_key/resolve
        Header: X-Internal-Secret
        Body: { oauth_token }
@@ -38,9 +39,9 @@
 
 | 系统 | 职责 |
 |---|---|
-| 51PM（Go） | CRUD、AES 加密落库、模型探测、内部 resolve |
+| 51PM（Go） | CRUD、AES 加密落库、模型探测、内部 resolve、代理 Agent execute/chat |
 | AI-Skill-Platform | 取 Bearer、调 resolve、按次构造 LLM 客户端、状态映射 |
-| 前端 | 本次仅文档 |
+| 前端 | 本次仅文档；只打 51PM，不直连 Agent |
 
 **安全：**
 

@@ -31,18 +31,17 @@ class HttpLLMClient:
         self,
         settings: Settings,
         *,
-        base_url: str | None = None,
-        api_key: str | None = None,
-        model: str | None = None,
+        base_url: str,
+        api_key: str,
+        model: str,
         timeout: float | None = None,
     ):
-        self.settings = settings
-        self.base_url = (base_url or settings.llm_base_url).rstrip("/")
-        self.api_key = api_key if api_key is not None else settings.llm_api_key
-        self.model = model if model is not None else settings.llm_model
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
+        self.model = model
         self.timeout = timeout if timeout is not None else settings.llm_timeout_seconds
-        self.retry_times = max(0, int(getattr(settings, "llm_retry_times", 1)))
-        self.retry_backoff_seconds = float(getattr(settings, "llm_retry_backoff_seconds", 1.0))
+        self.retry_times = max(0, int(settings.llm_retry_times))
+        self.retry_backoff_seconds = float(settings.llm_retry_backoff_seconds)
 
     def complete(self, system: str, user: str) -> str:
         attempts = self.retry_times + 1
