@@ -16,23 +16,35 @@ class LLMClient(Protocol):
 
 
 class HttpLLMClient:
-    def __init__(self, settings: Settings):
+    def __init__(
+        self,
+        settings: Settings,
+        *,
+        base_url: str | None = None,
+        api_key: str | None = None,
+        model: str | None = None,
+        timeout: float | None = None,
+    ):
         self.settings = settings
+        self.base_url = (base_url or settings.llm_base_url).rstrip("/")
+        self.api_key = api_key if api_key is not None else settings.llm_api_key
+        self.model = model if model is not None else settings.llm_model
+        self.timeout = timeout if timeout is not None else settings.llm_timeout_seconds
 
     def complete(self, system: str, user: str) -> str:
         try:
             response = httpx.post(
-                f"{self.settings.llm_base_url.rstrip('/')}/chat/completions",
-                headers={"Authorization": f"Bearer {self.settings.llm_api_key}"},
+                f"{self.base_url}/chat/completions",
+                headers={"Authorization": f"Bearer {self.api_key}"},
                 json={
-                    "model": self.settings.llm_model,
+                    "model": self.model,
                     "messages": [
                         {"role": "system", "content": system},
                         {"role": "user", "content": user},
                     ],
                     "temperature": 0,
                 },
-                timeout=self.settings.llm_timeout_seconds,
+                timeout=self.timeout,
             )
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
@@ -42,8 +54,10 @@ class HttpLLMClient:
         except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
             logger.error(
                 "LLM request failed: base_url=%s model=%s cause=%s: %s",
-                self.settings.llm_base_url, self.settings.llm_model,
-                type(exc).__name__, exc,
+                self.base_url,
+                self.model,
+                type(exc).__name__,
+                exc,
             )
             raise AppError(
                 code="llm_error",

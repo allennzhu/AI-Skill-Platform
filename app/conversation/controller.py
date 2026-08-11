@@ -1,5 +1,6 @@
 from app.api.errors import AppError
 from app.llm.client import LLMClient
+from app.llm.credentials import get_request_llm_client
 from app.llm.parse import parse_intent_json
 from app.llm.prompt import build_system_prompt
 from app.models.runtime import RuntimeResult
@@ -21,7 +22,14 @@ class ConversationController:
 
         system = build_system_prompt(self.runtime.registry.prompt_catalog())
         try:
-            raw = self.llm.complete(system, message)
+            # Prefer per-request credentials (user key); fall back to injected client for unit tests.
+            try:
+                client = get_request_llm_client()
+            except AppError as exc:
+                if exc.code != "unauthorized":
+                    raise
+                client = self.llm
+            raw = client.complete(system, message)
             parsed = parse_intent_json(raw)
         except AppError as exc:
             if exc.code != "llm_error":

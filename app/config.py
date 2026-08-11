@@ -19,6 +19,10 @@ class Settings(BaseSettings):
         r"192\.168\.\d{1,3}\.\d{1,3}|"
         r"172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$"
     )
+    # 51PM 业务后端（用户级 API Key resolve）
+    biz_base_url: str = "http://127.0.0.1:8888"
+    biz_internal_secret: str = ""
+    biz_resolve_timeout_seconds: float = 5
 
 def get_settings() -> Settings:
     return Settings()
