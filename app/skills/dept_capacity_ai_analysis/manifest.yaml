@@ -1,0 +1,12 @@
+name: dept_capacity_ai_analysis
+intent: dept_capacity_ai_analysis
+description: 工程产能分析助手——基于部门产能总览、周维度趋势与资源分配热力图，做归因分析并回答用户自定义问题，每次都附带资源热力图分析（点名单日≥12h的极端异常人员并推断原因）
+slots:
+  required:
+    - name: context
+      type: object
+      description: 前端装配的产能上下文，含 period / filters / capacity_overview / trend / heatmap
+  optional:
+    - name: question
+      type: string
+      description: 用户自定义问题；为空时输出整体产能诊断
