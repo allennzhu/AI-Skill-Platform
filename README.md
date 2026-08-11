@@ -32,7 +32,7 @@ cp .env.example .env
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-`HOST` / `PORT` 仅作文档默认值；uvicorn 不会自动读 `.env` 里的这两项。`LLM_TIMEOUT_SECONDS`（默认 `120`）等从 `.env` 加载。51PM `aiSkill.baseUrl` 需指向本进程实际地址。
+`HOST` / `PORT` 仅作文档默认值；uvicorn 不会自动读 `.env` 里的这两项。`LLM_TIMEOUT_SECONDS`（默认 `900`）等从 `.env` 加载。51PM `aiSkill.baseUrl` 需指向本进程实际地址。
 
 ## API examples
 

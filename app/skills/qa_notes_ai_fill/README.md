@@ -24,7 +24,7 @@
 ```
 
 - 走 51PM 代理（`requireApi.js`），不要直连 Agent 端口，也不要配 `VUE_APP_AGENT_API`。
-- 超时 ≥120s；按钮 loading 提示「AI 分析中，约需 1 分钟」；失败 toast 不回填。
+- 超时 900s（15 分钟）；按钮 loading 提示「AI 分析中，可能需要几分钟」；失败 toast 不回填。
 - **只生成不落库**：notes 回填草稿态，QA 确认后走既有 add/update/delete_qa_stat_summary_item 保存。
 
 ### context 字段与前端取数来源（全部为既有接口，无需后端改动）

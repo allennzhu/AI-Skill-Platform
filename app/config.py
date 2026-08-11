@@ -6,7 +6,7 @@ class Settings(BaseSettings):
 
     host: str = "0.0.0.0"
     port: int = 8000
-    llm_timeout_seconds: float = 120
+    llm_timeout_seconds: float = 900
     # 瞬时失败（524/502/超时）自动重试次数；免费模型冷启动常见第一次 524、第二次成功
     llm_retry_times: int = 1
     llm_retry_backoff_seconds: float = 1.0

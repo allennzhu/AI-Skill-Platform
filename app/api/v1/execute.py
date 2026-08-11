@@ -52,5 +52,9 @@ def execute(
     try:
         result = runtime.run(body.intent, body.slots, body.session_id)
         return AgentResponse(**result.__dict__)
+    except AppError as exc:
+        if exc.code in ("unauthorized", "no_api_key", "llm_error"):
+            return _auth_failure_response(runtime, body.session_id, exc.code, exc.message)
+        raise
     finally:
         reset_request_llm(ctx_token)
