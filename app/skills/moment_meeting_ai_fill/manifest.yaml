@@ -1,0 +1,15 @@
+name: moment_meeting_ai_fill
+intent: moment_meeting_ai_fill
+description: Parse a raw meeting-notes paste into structured "meeting moment" form fields (meeting type key, cleaned meeting content, attendee names, todo items with assignee names) as strict JSON for frontend form backfill
+slots:
+  required:
+    - name: raw_text
+      type: string
+      description: The raw meeting notes text pasted by the user (may contain watermarks, AI disclaimers, image markdown and trailing links to be stripped)
+  optional:
+    - name: meet_types
+      type: object
+      description: Allowed meeting type options as {key label}; the model must pick exactly one key or return empty string when none clearly fits
+    - name: known_users
+      type: array
+      description: Candidate user nick_names in the project, used only to normalize a mentioned person to an exact existing nick_name; never invent people not present in raw_text
