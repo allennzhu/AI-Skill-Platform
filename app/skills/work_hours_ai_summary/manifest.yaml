@@ -1,0 +1,15 @@
+name: work_hours_ai_summary
+intent: work_hours_ai_summary
+description: 绩效辅导风格工作总结（个人/部门）：价值与产出、Top5 亮点、五维评分与四要素改进建议；工时取 consumed
+slots:
+  required:
+    - name: context
+      type: object
+      description: 前端装配的工时上下文。period.start_date/end_date（或 date）+ items 原始工时列表，或 51PM 聚合后的 tasks/projects
+  optional:
+    - name: user_note
+      type: string
+      description: 用户补充说明（如「这周做什么」「明天优先做什么」）
+    - name: scope
+      type: string
+      description: personal（个人总结）或 department（部门总结）；不传则按数据中人数推断
