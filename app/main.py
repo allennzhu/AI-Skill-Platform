@@ -6,6 +6,7 @@ from app.api.errors import register_exception_handlers
 from app.api.v1 import chat as chat_api
 from app.api.v1 import execute as execute_api
 from app.api.v1 import health as health_api
+from app.api.v1 import route as route_api
 from app.config import get_settings
 from app.conversation.controller import ConversationController
 from app.llm.client import LLMClient
@@ -31,6 +32,7 @@ def create_app(llm_client: LLMClient | None = None) -> FastAPI:
     app.include_router(health_api.router)
     app.include_router(execute_api.router)
     app.include_router(chat_api.router)
+    app.include_router(route_api.router)
     return app
 
 

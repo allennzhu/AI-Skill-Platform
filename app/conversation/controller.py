@@ -1,3 +1,5 @@
+from typing import Any
+
 from app.api.errors import AppError
 from app.llm.client import LLMClient
 from app.llm.credentials import get_request_llm_client
@@ -12,19 +14,38 @@ class ConversationController:
         self.runtime = runtime
         self.llm = llm
 
-    def handle_chat(
+    def _parse_message(
         self,
         message: str,
         session_id: str | None,
-    ) -> RuntimeResult:
+        today: str | None = None,
+    ) -> RuntimeResult | dict[str, Any]:
         if not message or not message.strip():
             raise AppError("bad_request", "message is required")
 
-        system = build_system_prompt(self.runtime.registry.prompt_catalog())
+        pending = self.runtime.sessions.get(session_id) if session_id else None
+        pending_intent = pending.intent if pending else None
+        pending_slots = dict(pending.slots) if pending else None
+        missing_slots = None
+        if pending and pending.intent:
+            registered = self.runtime.registry.get(pending.intent)
+            if registered:
+                missing_slots = self.runtime.slot_manager.missing(
+                    registered.manifest.required_slots,
+                    pending.slots,
+                )
+
+        system = build_system_prompt(
+            self.runtime.registry.prompt_catalog(),
+            today=today,
+            pending_intent=pending_intent,
+            pending_slots=pending_slots,
+            missing_slots=missing_slots,
+        )
         try:
             client = self.llm or get_request_llm_client()
             raw = client.complete(system, message)
-            parsed = parse_intent_json(raw)
+            return parse_intent_json(raw)
         except AppError as exc:
             if exc.code != "llm_error":
                 raise
@@ -41,7 +62,31 @@ class ConversationController:
                 reply=exc.message,
             )
 
+    def handle_chat(
+        self,
+        message: str,
+        session_id: str | None,
+        today: str | None = None,
+    ) -> RuntimeResult:
+        parsed = self._parse_message(message, session_id, today)
+        if isinstance(parsed, RuntimeResult):
+            return parsed
         return self.runtime.run(
+            parsed["intent"],
+            parsed.get("slots") or {},
+            session_id,
+        )
+
+    def handle_route(
+        self,
+        message: str,
+        session_id: str | None,
+        today: str | None = None,
+    ) -> RuntimeResult:
+        parsed = self._parse_message(message, session_id, today)
+        if isinstance(parsed, RuntimeResult):
+            return parsed
+        return self.runtime.route(
             parsed["intent"],
             parsed.get("slots") or {},
             session_id,

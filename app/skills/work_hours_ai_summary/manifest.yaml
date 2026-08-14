@@ -7,9 +7,21 @@ slots:
       type: object
       description: 前端装配的工时上下文。period.start_date/end_date（或 date）+ items 原始工时列表，或 51PM 聚合后的 tasks/projects
   optional:
+    - name: start_date
+      type: string
+      description: 开始日期 YYYY-MM-DD；相对时间（这周/上周/上半年/今天）需换算
+    - name: end_date
+      type: string
+      description: 结束日期 YYYY-MM-DD
+    - name: person_name
+      type: string
+      description: 要总结的同事姓名；未点名则空，表示发送者自己
+    - name: dept_name
+      type: string
+      description: 要总结的部门，可用简称（如场景C、测试）
     - name: user_note
       type: string
-      description: 用户补充说明（如「这周做什么」「明天优先做什么」）
+      description: 用户补充说明（如「打个分」「这周做什么」）
     - name: scope
       type: string
       description: personal（个人总结）或 department（部门总结）；不传则按数据中人数推断

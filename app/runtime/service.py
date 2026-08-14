@@ -74,3 +74,60 @@ class RuntimeService:
             result=response.get("result"),
             reply=response.get("reply"),
         )
+
+    def route(
+        self,
+        intent: str,
+        slots: dict[str, Any],
+        session_id: str | None,
+    ) -> RuntimeResult:
+        session = self.sessions.get(session_id) if session_id else None
+        if session is None:
+            session = self.sessions.create(session_id)
+
+        self.sessions.merge_slots(session, intent, slots)
+
+        try:
+            registered = self.router.resolve(intent)
+        except AppError as exc:
+            if exc.code != "unknown_intent":
+                raise
+            self.sessions.save(session)
+            return RuntimeResult(
+                session_id=session.session_id,
+                status="unknown_intent",
+                intent=intent,
+                slots=dict(session.slots),
+                reply="暂时无法处理这句话，请换一种说法，或说明你想做工作总结、填工时还是确认工时。",
+            )
+
+        missing_slots = self.slot_manager.missing(
+            registered.manifest.required_slots,
+            session.slots,
+        )
+        self.sessions.save(session)
+        if missing_slots:
+            labels = []
+            desc_map = {item.name: item.description or item.name for item in registered.manifest.slots}
+            for name in missing_slots:
+                if name == "context":
+                    continue
+                labels.append(desc_map.get(name) or name)
+            reply = ""
+            ask = [name for name in missing_slots if name != "context"]
+            if ask:
+                reply = "还需要补充：" + "、".join(labels or ask)
+            return RuntimeResult(
+                session_id=session.session_id,
+                status="need_slot",
+                intent=intent,
+                slots=dict(session.slots),
+                missing_slots=missing_slots,
+                reply=reply,
+            )
+        return RuntimeResult(
+            session_id=session.session_id,
+            status="routed",
+            intent=intent,
+            slots=dict(session.slots),
+        )

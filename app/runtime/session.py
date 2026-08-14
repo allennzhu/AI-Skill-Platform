@@ -41,6 +41,8 @@ class SessionStore:
         self, data: SessionData, intent: Optional[str], slots: dict[str, Any]
     ) -> SessionData:
         if intent:
+            if data.intent and data.intent != intent:
+                data.slots = {}
             data.intent = intent
         data.slots.update(slots or {})
         data.updated_at = time.time()

@@ -9,11 +9,19 @@ import yaml
 
 
 @dataclass
+class SlotSpec:
+    name: str
+    description: str = ""
+    required: bool = False
+
+
+@dataclass
 class SkillManifest:
     name: str
     intent: str
     description: str
     required_slots: list[str]
+    slots: list[SlotSpec]
 
 
 @runtime_checkable
@@ -66,17 +74,36 @@ def _load_module(skill_dir: Path, module_name: str) -> Any:
     return module
 
 
+def _parse_slot_list(items: Any, required: bool) -> list[SlotSpec]:
+    out: list[SlotSpec] = []
+    if not isinstance(items, list):
+        return out
+    for item in items:
+        if not isinstance(item, dict) or not item.get("name"):
+            continue
+        out.append(
+            SlotSpec(
+                name=str(item["name"]),
+                description=str(item.get("description") or ""),
+                required=required,
+            )
+        )
+    return out
+
+
 def _parse_manifest(skill_dir: Path) -> SkillManifest:
     manifest_path = skill_dir / "manifest.yaml"
     with manifest_path.open(encoding="utf-8") as f:
         data = yaml.safe_load(f)
-    required = data.get("slots", {}).get("required", [])
-    required_slots = [slot["name"] for slot in required]
+    slot_cfg = data.get("slots") or {}
+    required_specs = _parse_slot_list(slot_cfg.get("required"), True)
+    optional_specs = _parse_slot_list(slot_cfg.get("optional"), False)
     return SkillManifest(
         name=data["name"],
         intent=data["intent"],
         description=data["description"],
-        required_slots=required_slots,
+        required_slots=[slot.name for slot in required_specs],
+        slots=required_specs + optional_specs,
     )
 
 

@@ -42,8 +42,13 @@ class SkillRegistry:
         lines = []
         for intent in self.list_intents():
             manifest = self._skills[intent].manifest
-            required = ", ".join(manifest.required_slots) or "none"
-            lines.append(
-                f"- {intent}: {manifest.description}; required slots: {required}"
-            )
+            lines.append(f"- {intent}: {manifest.description}")
+            if not manifest.slots:
+                lines.append("  slots: none")
+                continue
+            for slot in manifest.slots:
+                flag = "required" if slot.required else "optional"
+                source = "backend-assembled, do not invent" if slot.name == "context" else "extract from user message if present"
+                desc = slot.description or slot.name
+                lines.append(f"  - {slot.name} ({flag}, {source}): {desc}")
         return "\n".join(lines)

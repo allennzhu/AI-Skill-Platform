@@ -4,6 +4,12 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
+    today: Optional[str] = None
+
+class RouteRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+    today: Optional[str] = None
 
 class ExecuteRequest(BaseModel):
     intent: str
