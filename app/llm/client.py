@@ -33,6 +33,34 @@ def _as_int_code(value: object) -> int | None:
         return None
 
 
+def _stringify_chat_content(content: object) -> str:
+    """兼容 OpenAI 字符串，以及 OpenRouter/Claude 的 content 数组。"""
+    if isinstance(content, str):
+        return content
+    if not isinstance(content, list):
+        raise TypeError("LLM content must be a string")
+    texts: list[str] = []
+    fallback: list[str] = []
+    for item in content:
+        if isinstance(item, str):
+            fallback.append(item)
+            continue
+        if not isinstance(item, dict):
+            continue
+        text = item.get("text")
+        if not isinstance(text, str) or text == "":
+            continue
+        kind = str(item.get("type") or "text").lower()
+        if kind in {"text", "output_text"}:
+            texts.append(text)
+        else:
+            fallback.append(text)
+    joined = "".join(texts) if texts else "".join(fallback)
+    if not joined:
+        raise TypeError("LLM content must be a string")
+    return joined
+
+
 def _extract_chat_content(payload: object) -> str:
     if not isinstance(payload, dict):
         raise ValueError("模型返回不是 JSON 对象")
@@ -51,10 +79,7 @@ def _extract_chat_content(payload: object) -> str:
     message = choices[0].get("message") if isinstance(choices[0], dict) else None
     if not isinstance(message, dict):
         raise ValueError("模型返回缺少 message")
-    content = message.get("content")
-    if not isinstance(content, str):
-        raise TypeError("LLM content must be a string")
-    return content
+    return _stringify_chat_content(message.get("content"))
 
 
 def _is_retryable(exc: BaseException) -> bool:

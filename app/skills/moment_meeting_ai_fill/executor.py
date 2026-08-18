@@ -196,7 +196,8 @@ def execute(slots: dict[str, Any]) -> dict[str, Any]:
         f"{payload}"
     )
 
-    client = get_request_llm_client()
+    # 飞书同步不宜等全局 900s：超时后 51PM 会先报「AI 分析超时」，真实 401/格式错误出不来
+    client = get_request_llm_client(timeout=90)
     raw = client.complete(SYSTEM_PROMPT, user_prompt)
 
     reply = _clean_reply(raw)

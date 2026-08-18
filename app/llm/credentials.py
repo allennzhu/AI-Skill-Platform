@@ -26,7 +26,7 @@ def reset_request_llm(token: Token) -> None:
     _llm_ctx.reset(token)
 
 
-def get_request_llm_client() -> LLMClient:
+def get_request_llm_client(*, timeout: float | None = None) -> LLMClient:
     creds = _llm_ctx.get()
     if creds is None:
         raise AppError(
@@ -39,4 +39,5 @@ def get_request_llm_client() -> LLMClient:
         base_url=creds.base_url,
         api_key=creds.api_key,
         model=creds.model,
+        timeout=timeout,
     )
