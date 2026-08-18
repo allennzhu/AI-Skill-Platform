@@ -64,7 +64,11 @@ def _post_resolve(settings: Settings, payload: dict) -> ResolvedLLM:
     if code == 401:
         raise AppError(code="unauthorized", message="invalid_token", status_code=401)
     if code == 404:
-        raise AppError(code="no_api_key", message="not_configured", status_code=404)
+        raise AppError(
+            code="no_api_key",
+            message="还没有配置 51PM Agent。请打开 51PM：顶部「我的工作台」→「51PM Agent配置」→「+ 新增 API Key」。",
+            status_code=404,
+        )
     if code != 0:
         raise AppError(
             code="llm_error",

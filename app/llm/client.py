@@ -107,7 +107,7 @@ def _friendly_llm_message(exc: BaseException) -> str:
     if isinstance(exc, httpx.HTTPStatusError) and exc.response is not None:
         code = exc.response.status_code
         if code == 401:
-            return "模型服务拒绝访问（401），请检查 API Key 是否有效、是否有该模型权限"
+            return "模型没通过验证（401）。请到 51PM「我的工作台」→「51PM Agent配置」检查 API Key 和默认模型；还没添加就点「+ 新增 API Key」。"
         if code == 403:
             return "模型服务禁止访问（403），请检查 Key 权限或余额"
         if code == 404:
