@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Protocol
+from typing import Any, Protocol
 import logging
 import time
 
@@ -15,7 +15,7 @@ _RETRYABLE_STATUS = {408, 429, 500, 502, 503, 504, 520, 522, 524}
 
 
 class LLMClient(Protocol):
-    def complete(self, system: str, user: str) -> str: ...
+    def complete(self, system: str, user: str | list[dict[str, Any]]) -> str: ...
 
 
 class _ProviderResponseError(Exception):
@@ -122,6 +122,14 @@ def _friendly_llm_message(exc: BaseException) -> str:
     return "模型调用失败，请稍后重试"
 
 
+def _build_user_content(user: str | list[dict[str, Any]]) -> str | list[dict[str, Any]]:
+    if isinstance(user, str):
+        return user
+    if not isinstance(user, list) or not user:
+        raise TypeError("LLM user content must be a string or a non-empty content array")
+    return user
+
+
 class HttpLLMClient:
     def __init__(
         self,
@@ -139,11 +147,12 @@ class HttpLLMClient:
         self.retry_times = max(0, int(settings.llm_retry_times))
         self.retry_backoff_seconds = float(settings.llm_retry_backoff_seconds)
 
-    def complete(self, system: str, user: str) -> str:
+    def complete(self, system: str, user: str | list[dict[str, Any]]) -> str:
         attempts = self.retry_times + 1
         last_exc: BaseException | None = None
         for attempt in range(1, attempts + 1):
             try:
+                user_content = _build_user_content(user)
                 response = httpx.post(
                     f"{self.base_url}/chat/completions",
                     headers={"Authorization": f"Bearer {self.api_key}"},
@@ -151,7 +160,7 @@ class HttpLLMClient:
                         "model": self.model,
                         "messages": [
                             {"role": "system", "content": system},
-                            {"role": "user", "content": user},
+                            {"role": "user", "content": user_content},
                         ],
                         "temperature": 0,
                     },
@@ -193,10 +202,10 @@ class HttpLLMClient:
 
 
 class FakeLLMClient:
-    def __init__(self, scripted: str | Callable[[str, str], str]):
+    def __init__(self, scripted: str | Callable[[str, str | list[dict[str, Any]]], str]):
         self.scripted = scripted
 
-    def complete(self, system: str, user: str) -> str:
+    def complete(self, system: str, user: str | list[dict[str, Any]]) -> str:
         if callable(self.scripted):
             return self.scripted(system, user)
         return self.scripted

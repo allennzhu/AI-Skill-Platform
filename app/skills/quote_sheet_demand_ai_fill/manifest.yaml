@@ -1,0 +1,15 @@
+name: quote_sheet_demand_ai_fill
+intent: quote_sheet_demand_ai_fill
+description: Parse a quotation-sheet raw text into structured initial-demand draft fields for 51PM, including demand name, quantity, unit, version, optional schedule/assignee hints, and explicit missing fields
+slots:
+  required:
+  optional:
+    - name: raw_text
+      type: string
+      description: The raw quotation PDF text extracted from Feishu when the PDF is text-based
+    - name: pdf_base64
+      type: string
+      description: Base64-encoded PDF bytes for scanned quotation PDFs that need visual recognition
+    - name: file_name
+      type: string
+      description: Original file name for debugging and model context
