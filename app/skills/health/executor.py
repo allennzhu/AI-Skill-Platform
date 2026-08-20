@@ -12,5 +12,6 @@ def execute(slots: dict[str, Any]) -> dict[str, Any]:
             "dept_capacity_ai_analysis",
             "moment_meeting_ai_fill",
             "work_hours_ai_summary",
+            "project_progress_ai_summary",
         ],
     }

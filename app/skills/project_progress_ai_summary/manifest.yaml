@@ -1,0 +1,9 @@
+name: project_progress_ai_summary
+intent: project_progress_ai_summary
+description: 基于项目进展 JSON（制作需求/反馈、递交、日报）生成中文分析总结
+slots:
+  required:
+    - name: context
+      type: object
+      description: 51PM 装配的项目进展上下文，含 project、period、produce_demand、publish、daily
+  optional: []
